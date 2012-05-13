@@ -1,12 +1,11 @@
-<!DOCTYPE html>
 <html>
   <head>
     <title>Contact Example</title>
 
     <script type="text/javascript" charset="utf-8" src="cordova-1.7.0rc1.js"></script>
+    <script type="text/javascript" charset="utf-8" src="jquery.js"></script>
     <script type="text/javascript" charset="utf-8">
 
-   
     // Wait for Cordova to load
     //
     document.addEventListener("deviceready", onDeviceReady, false);
@@ -14,58 +13,40 @@
     // Cordova is ready
     //
     function onDeviceReady() {
-        // create
-        var contact = navigator.contacts.create();
-        contact.displayName = "Plumber";
-        contact.nickname = "Plumber";       //specify both to support all devices
-        var name = new ContactName();
-        name.givenName = "Jane";
-        name.familyName = "Doe";
-        contact.name = name;
-
-        // save
-        contact.save(onSaveSuccess,onSaveError);
-
-        // clone
-        var clone = contact.clone();
-        clone.name.givenName = "John";
-        console.log("Original contact name = " + contact.name.givenName);
-        console.log("Cloned contact name = " + clone.name.givenName); 
-
-        // remove
-        contact.remove(onRemoveSuccess,onRemoveError);
+    //alert("ready");
+        $("#contacts").html("device ready");
+     	var options = new ContactFindOptions();
+		options.filter="ani"; 
+		options.multiple = true;
+        var fields = ["displayName","birthday","phoneNumbers"];
+        navigator.contacts.find(fields, onSuccess, onError, options);
     }
 
-    // onSaveSuccess: Get a snapshot of the current contacts
+    // onSuccess: Get a snapshot of the current contacts
     //
-    function onSaveSuccess(contact) {
-        alert("Save Success");
-    }
-
-    // onSaveError: Failed to get the contacts
+    function onSuccess(contacts) {
+    alert(contacts.length);
+    //$("#contacts").html("hello");
+        for (var i=0; i<contacts.length; i++) {
+            console.log("Display Name = " + contacts[i].displayName);            
+            if(contacts[i].birthday != null){
+               for (var j=0; j<contacts[i].phoneNumbers.length; j++) {            
+					$("#contacts").html($("#contacts").html() + "<br/>" + contacts[i].displayName + " " + contacts[i].birthday + " " + contacts[i].phoneNumbers[j].value);
+				}
+			}
+		}
+	}
+    // onError: Failed to get the contacts
     //
-    function onSaveError(contactError) {
-        alert("Error = " + contactError.code);
+    function onError(contactError) {
+        alert('onError!');
     }
-
-    // onRemoveSuccess: Get a snapshot of the current contacts
-    //
-    function onRemoveSuccess(contacts) {
-        alert("Removal Success");
-    }
-
-    // onRemoveError: Failed to get the contacts
-    //
-    function onRemoveError(contactError) {
-        alert("Error = " + contactError.code);
-    }
-
-
 
     </script>
   </head>
   <body>
     <h1>Example</h1>
-    <p>Create Contact</p>
+    <p>Find Contacts</p>
+    <p id="contacts"></p>
   </body>
 </html>
