@@ -3,6 +3,8 @@ if (typeof CDV == 'undefined') alert('CDV variable does not exist. Check that yo
 if (typeof FB == 'undefined') alert('FB variable does not exist. Check that you have included the Facebook JS SDK file.');
 var x = [];
 var db;
+var friendIDs = [];
+var fdata;
 FB.Event.subscribe('auth.login', function(response) {
 //	alert('auth.login event');
 });
@@ -75,27 +77,52 @@ function populateDB(tx) {
 //
 function errorCB(tx, err) {
     alert("Error processing SQL: "+ print(arguments) + err);
+    alert("No Bday today");
 }
-   function queryDB(tx) {
-        tx.executeSql('SELECT * FROM birthdays', [], querySuccess, errorCB);
-    }
+function queryDB(tx) {
+  var date = new Date();
+  var string = ('0' + date.getDate()).slice(-2) + '/' + ('0' + (date.getMonth()+1)).slice(-2);
+  //string = "06/08";
+  //tx.executeSql('SELECT * FROM birthdays WHERE birthday LIKE "%' + string + '%"', [], querySuccess, errorCB);
+  tx.executeSql('SELECT * FROM birthdays WHERE birthday', [], querySuccess, errorCB);
+}
 
-    // Query the success callback
-    //
-    function querySuccess(tx, results) {
-        // this will be empty since no rows were inserted.
-        //console.log("Insert ID = " + results.insertId);
-        // this will be 0 since it is a select statement
-        console.log("Rows Affected = " + results.rowAffected);
-        // the number of rows returned by the select statement
-        console.log("Insert ID = " + results.rows.length);
-        //console.log("db dump:" + print(results));
-         var len = results.rows.length;
-        for (var i=0; i<len; i++){
-        $("#log").append("Row = " + i + " " + results.rows.item(i).uid + " " + results.rows.item(i).name + " " + results.rows.item(i).birthday);
-  		  }
-        return true;
-    }
+// Query the success callback
+function querySuccess(tx, results) {
+    // this will be empty since no rows were inserted.
+    //console.log("Insert ID = " + results.insertId);
+    // this will be 0 since it is a select statement
+    console.log("Rows Affected = " + results.rowAffected);
+    // the number of rows returned by the select statement
+    console.log("Insert ID = " + results.rows.length);
+    //console.log("db dump:" + print(results));
+     var len = results.rows.length;
+     console.log("today:"+ len);
+    for (var i=0; i<100; i++){
+      search(results.rows.item(i).name, function(contacts){
+        
+        if( typeof(contacts) != "undefined" && contacts.hasOwnProperty(length) ){
+          console.log("return:" + print(contacts));
+        for(var i=0; i<contacts.length; i++) {
+          if( contacts[i].hasOwnProperty("phoneNumbers") && typeof(contacts[i].phoneNumbers) != "undefined" && contacts[i].phoneNumbers != null && contacts[i].phoneNumbers.hasOwnProperty(length) ){
+             for (var j=0; j<contacts[i].phoneNumbers.length; j++) {
+               if( contacts[i].phoneNumbers[j].value != ""){
+                 break;
+               }
+             }
+              if ( j != contacts[i].phoneNumbers.length ){              
+                
+                console.log("found:" + contacts[i].displayName + contacts[i].phoneNumbers[j].value);
+                $("#log").append("<br/>" + results.rows.item(i).uid + " " + results.rows.item(i).name + " " + results.rows.item(i).birthday + " " + contacts[i].phoneNumbers[j].value);
+              }
+            }
+        }
+      }
+    });
+    
+  }
+    return true;
+}
     
 // Transaction success callback
 //
@@ -114,8 +141,7 @@ function getLoginStatus() {
 					  }
 					  });
 }
-var friendIDs = [];
-var fdata;
+
 
 var print = function(o){
     var str='';
@@ -179,7 +205,6 @@ function me() {
 	});
 }
 
-
 function logout() {
 	FB.logout(function(response) {
 			  alert('logged out');
@@ -200,6 +225,7 @@ FB.login(
 }
 
 document.addEventListener('deviceready', function() {
+  onDeviceReady();
   try {
  // alert('Device is ready! Make sure you set your app_id below this alert.');
   FB.init({ appId: "405651006145953", nativeInterface: CDV.FB, useCachedDialogs: false });
@@ -229,4 +255,3 @@ function onDeviceReady(){
   db = window.openDatabase("autobudder", "1.0", "AutoBudder", 1000000);
   db.transaction(createTable, errorCB, successCB);
 }
-document.addEventListener("deviceready", onDeviceReady, false);
