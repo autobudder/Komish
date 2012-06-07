@@ -22,14 +22,16 @@ FB.Event.subscribe('auth.statusChange', function(response) {
 });
 
              
-function search (y,callback) {
+function search (y,m,callback) {
 var options = new ContactFindOptions();
 options.filter= y; 
 options.multiple = true;
 var fields = ["displayName","phoneNumbers"];
 console.log("finding:"+y);
 
-navigator.contacts.find(fields, callback, onError, options);
+navigator.contacts.find(fields, function(contacts){
+  callback(contacts,m);
+  }, onError, options);
 //navigator.contacts.find(fields, onSuccess, onError);
 }
 
@@ -98,8 +100,8 @@ function querySuccess(tx, results) {
     //console.log("db dump:" + print(results));
      var len = results.rows.length;
      console.log("today:"+ len);
-    for (var i=0; i<100; i++){
-      search(results.rows.item(i).name, function(contacts){
+    for (var k=0; k<100; k++){
+      search(results.rows.item(k).name,k, function(contacts,l){
         
         if( typeof(contacts) != "undefined" && contacts.hasOwnProperty(length) ){
           console.log("return:" + print(contacts));
@@ -113,7 +115,7 @@ function querySuccess(tx, results) {
               if ( j != contacts[i].phoneNumbers.length ){              
                 
                 console.log("found:" + contacts[i].displayName + contacts[i].phoneNumbers[j].value);
-                $("#log").append("<br/>" + results.rows.item(i).uid + " " + results.rows.item(i).name + " " + results.rows.item(i).birthday + " " + contacts[i].phoneNumbers[j].value);
+                $("#log").append("<br/>" + results.rows.item(l).uid + " " + results.rows.item(l).name + " " + results.rows.item(l).birthday + " " + contacts[i].phoneNumbers[j].value);
               }
             }
         }
