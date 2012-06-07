@@ -5,6 +5,8 @@ var x = [];
 var db;
 var friendIDs = [];
 var fdata;
+var results;
+var today = {};
 FB.Event.subscribe('auth.login', function(response) {
 //	alert('auth.login event');
 });
@@ -22,19 +24,44 @@ FB.Event.subscribe('auth.statusChange', function(response) {
 });
 
              
-function search (y,m,callback) {
+function search (y,m) {
 var options = new ContactFindOptions();
 options.filter= y; 
 options.multiple = true;
 var fields = ["displayName","phoneNumbers"];
 console.log("finding:"+y);
 
-navigator.contacts.find(fields, function(contacts){
-  callback(contacts,m);
-  }, onError, options);
+navigator.contacts.find(fields, render(m), onError, options);
 //navigator.contacts.find(fields, onSuccess, onError);
 }
 
+function render(m){
+  return function(contacts){
+        
+        if( typeof(contacts) != "undefined" && contacts.hasOwnProperty(length) ){
+          console.log("return:" + print(contacts));
+        for(var i=0; i<contacts.length; i++) {
+          if( contacts[i].hasOwnProperty("phoneNumbers") && typeof(contacts[i].phoneNumbers) != "undefined" && contacts[i].phoneNumbers != null && contacts[i].phoneNumbers.hasOwnProperty(length) ){
+             for (var j=0; j<contacts[i].phoneNumbers.length; j++) {
+               if( contacts[i].phoneNumbers[j].value != ""){
+                 break;
+               }
+             }
+              if ( j != contacts[i].phoneNumbers.length ){              
+                
+                console.log("found:" + contacts[i].displayName + contacts[i].phoneNumbers[j].value);
+                today[results.rows.item(m).uid] = { uid: results.rows.item(m).uid,
+                name: results.rows.item(m).name,
+                bday: results.rows.item(m).birthday,
+                number: contacts[i].phoneNumbers[j].value
+              }
+                $("#log").append("<br/>" + results.rows.item(m).uid + " " + results.rows.item(m).name + " " + results.rows.item(m).birthday + " " + contacts[i].phoneNumbers[j].value + "<button id='" + results.rows.item(m).uid + "' onclick='messageSend(this.id)'>Send</button>" );
+              }
+            }
+        }
+      }
+    }
+  }
 function onSuccess(contacts) {
 alert(contacts.length);
 //$("#contacts").html("hello");
@@ -90,37 +117,16 @@ function queryDB(tx) {
 }
 
 // Query the success callback
-function querySuccess(tx, results) {
-    // this will be empty since no rows were inserted.
-    //console.log("Insert ID = " + results.insertId);
-    // this will be 0 since it is a select statement
+function querySuccess(tx, r) {
+  results = r;
     console.log("Rows Affected = " + results.rowAffected);
     // the number of rows returned by the select statement
     console.log("Insert ID = " + results.rows.length);
     //console.log("db dump:" + print(results));
      var len = results.rows.length;
      console.log("today:"+ len);
-    for (var k=0; k<100; k++){
-      search(results.rows.item(k).name,k, function(contacts,l){
-        
-        if( typeof(contacts) != "undefined" && contacts.hasOwnProperty(length) ){
-          console.log("return:" + print(contacts));
-        for(var i=0; i<contacts.length; i++) {
-          if( contacts[i].hasOwnProperty("phoneNumbers") && typeof(contacts[i].phoneNumbers) != "undefined" && contacts[i].phoneNumbers != null && contacts[i].phoneNumbers.hasOwnProperty(length) ){
-             for (var j=0; j<contacts[i].phoneNumbers.length; j++) {
-               if( contacts[i].phoneNumbers[j].value != ""){
-                 break;
-               }
-             }
-              if ( j != contacts[i].phoneNumbers.length ){              
-                
-                console.log("found:" + contacts[i].displayName + contacts[i].phoneNumbers[j].value);
-                $("#log").append("<br/>" + results.rows.item(l).uid + " " + results.rows.item(l).name + " " + results.rows.item(l).birthday + " " + contacts[i].phoneNumbers[j].value);
-              }
-            }
-        }
-      }
-    });
+    for (var k=0; k<20; k++){
+            search(results.rows.item(k).name,k); 
     
   }
     return true;
@@ -238,9 +244,15 @@ document.addEventListener('deviceready', function() {
   }, false);
 
 
-function messageSend(x){
-	alert('Phone: ' + x + ' Message: Happy Birthday from Kartik' );
-	window.plugins.sms.send(x, "Happy Birthday from Kartik", 
+function messageSend(id){
+  	console.log('dumpq: ' + print(today));
+  	console.log('id: ' + id);
+
+  var x = today[id].name;
+  var y = today[id].number;
+  
+	console.log('Sending: ' + x + ' ' + y );
+	window.plugins.sms.send(9008420482, "Happy Birthday " + x, 
 		function () { 
 		   alert('Message sent successfully');	
 	    },
