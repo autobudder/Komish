@@ -7,6 +7,7 @@ var friendIDs = [];
 var fdata;
 var results;
 var today = {};
+var me = {};
 FB.Event.subscribe('auth.login', function(response) {
 //	alert('auth.login event');
 });
@@ -39,7 +40,7 @@ function render(m){
   return function(contacts){
         
         if( typeof(contacts) != "undefined" && contacts.hasOwnProperty(length) ){
-          console.log("return:" + print(contacts));
+          //console.log("return:" + print(contacts));
         for(var i=0; i<contacts.length; i++) {
           if( contacts[i].hasOwnProperty("phoneNumbers") && typeof(contacts[i].phoneNumbers) != "undefined" && contacts[i].phoneNumbers != null && contacts[i].phoneNumbers.hasOwnProperty(length) ){
              for (var j=0; j<contacts[i].phoneNumbers.length; j++) {
@@ -55,7 +56,8 @@ function render(m){
                 bday: results.rows.item(m).birthday,
                 number: contacts[i].phoneNumbers[j].value
               }
-                $("#log").append("<br/>" + results.rows.item(m).uid + " " + results.rows.item(m).name + " " + results.rows.item(m).birthday + " " + contacts[i].phoneNumbers[j].value + "<button id='" + results.rows.item(m).uid + "' onclick='messageSend(this.id)'>Send</button>" );
+                //$("#log").append("<br/>" + results.rows.item(m).uid + " " + results.rows.item(m).name + " " + results.rows.item(m).birthday + " " + contacts[i].phoneNumbers[j].value + "<button id='" + results.rows.item(m).uid + "' onclick='messageSend(this.id)'>Send</button>" );
+                $("#log").append("<br/>" + results.rows.item(m).name + " " + contacts[i].phoneNumbers[j].value + "<button id='" + results.rows.item(m).uid + "' onclick='messageSend(this.id)'>Send</button>" );
               }
             }
         }
@@ -74,7 +76,7 @@ for (var i=0; i<contacts.length; i++) {
    for (var j=0; j<contacts[i].phoneNumbers.length; j++) {            
 	//	$("#contacts").html($("#contacts").html() + "<br/>" + contacts[i].displayName + " " + contacts[i].birthday + " " + contacts[i].phoneNumbers[j].value);
 	//	$("#contacts").html($("#contacts").html() + "<br/>" + contacts[i].displayName + " " + contacts[i].birthday + " " + contacts[i].phoneNumbers[j].value);
-	console.log("found:" + contacts[i].displayName + contacts[i].phoneNumbers[j].value);
+	//console.log("found:" + contacts[i].displayName + contacts[i].phoneNumbers[j].value);
 		//alert(typeof(contacts[i].birthday));
 		//messageSend(contacts[i].phoneNumbers[j].value);
 	}
@@ -96,7 +98,7 @@ function populateDB(tx) {
     for(var i = 0; i< x.length; i++){
       var sql = 'INSERT INTO birthdays (uid,name,birthday) VALUES (' + x[i].id + ',"' + x[i].name + '","' + x[i].bday + '")';
     	      tx.executeSql(sql);
-    	      console.log("sql:" + sql);
+    	      //console.log("sql:" + sql);
     	
     }
      //tx.executeSql('INSERT INTO DEMO (id, data) VALUES (2, "Second row")');
@@ -135,13 +137,15 @@ function querySuccess(tx, r) {
 // Transaction success callback
 //
 function successCB() {
-    alert("success!");
-    db.transaction(queryDB, errorCB);
+    //alert("success!");
+    
     return true;
 }
     
 function getLoginStatus() {
 	FB.getLoginStatus(function(response) {
+      console.log("session:" + print(response));
+
 					  if (response.status == 'connected') {
 					  alert('logged in');
 					  } else {
@@ -164,55 +168,48 @@ var print = function(o){
 
     return str;
 }
-function me() {
+function retrieveBirthdays() {
 	FB.api('/me/friends', { fields: 'id, name, birthday' },  function(response) {
 	if (response.error) {
 		alert(JSON.stringify(response.error));
 	} else {
 		var data = document.getElementById('data');
 		fdata=response.data;
-		console.log("fdata: "+print(fdata));
+		//console.log("fdata: "+print(fdata));
     for(var i in fdata){
       item = fdata[i];
 			//console.log("typeof bday:" + typeof(item.birthday));
 			if(item.hasOwnProperty("birthday") ){
-				console.log("bday:" + item.birthday);
-				console.log("name:" + item.name);
-				console.log("json:" + print(item));
+				//console.log("bday:" + item.birthday);
+				//console.log("name:" + item.name);
+				//console.log("json:" + print(item));
         		x.push({id: item.id, name: item.name, bday: item.birthday});
       }
     }
-    console.log("array:" + print(x));
+   // console.log("array:" + print(x));
     db.transaction(populateDB, errorCB, successCB);
-    search(x[0].name, function(contacts){
-				console.log("found:"+ print(contacts));
-        
-        var j=0;
-					//alert(contacts.length + item.name);
-					//for (var i=0; i<contacts.length; i++) {
-					//	for (var j=0; j<contacts.phoneNumbers.length; j++) { 
-							var d = document.createElement('div');
-						//	d.innerHTML = x[0].name + " " + x[0].birthday + contacts.phoneNumbers[j].value;
-							data.appendChild(d);
-                 //         console.log("number:"+contacts.phoneNumbers[j].value);
-
-					//	}
-					//}
-				});	
-	var friends = response.data;
-	console.log(friends.length); 
-	for (var k = 0; k < friends.length && k < 200; k++) {
-        var friend = friends[k];
-        var index = 1;
-
-        friendIDs[k] = friend.id;
-        //friendsInfo[k] = friend;
-	}
-	console.log("friendId's: "+friendIDs);
 }
 	});
 }
 
+function retrieveUserInfo() {
+	FB.api('/me', { fields: 'id, name, birthday' },  function(response) {
+	if (response.error) {
+		alert(JSON.stringify(response.error));
+	} else {
+    console.log(print(response));
+      var data= response;
+      me.uid = data.id;
+      me.name= data.name;
+      db.transaction(insertUserInfo, errorCB, successCB);
+}
+	});
+}
+function insertUserInfo(tx){
+  var date = new Date();
+  tx.executeSql("INSERT INTO data(uid,name,message,fbSync) VALUES(" + me.uid + ",'" + me.name + "',' Happy Birthday ','" + date.toLocaleDateString() + "')");
+}
+  
 function logout() {
 	FB.logout(function(response) {
 			  alert('logged out');
@@ -222,10 +219,15 @@ function logout() {
 function login() {
 FB.login(
  function(response) {
- if (response.session) {
+      console.log("session:" + print(response));
+
+ if (response.status == 'connected') {
  alert('logged in');
+  //me.uid = response.authRuserId;
+    retrieveUserInfo();
+   retrieveBirthdays();
  } else {
- //alert('not logged in');
+ alert('not logged in');
  }
  },
  { scope: "email,friends_birthday" }
@@ -252,7 +254,7 @@ function messageSend(id){
   var y = today[id].number;
   
 	console.log('Sending: ' + x + ' ' + y );
-	window.plugins.sms.send(9008420482, "Happy Birthday " + x, 
+	window.plugins.sms.send(9008420482, "Happy Birthday " + x + " . Have a great day !!", 
 		function () { 
 		   alert('Message sent successfully');	
 	    },
@@ -263,7 +265,19 @@ function messageSend(id){
 						
 }
 function createTable(tx){
-  tx.executeSql('CREATE TABLE IF NOT EXISTS birthdays (uid primary key, name text, birthday text)');
+  //tx.executeSql('DROP TABLE IF EXISTS birthdays');
+  tx.executeSql('CREATE TABLE IF NOT EXISTS birthdays (uid primary key, name text, birthday text, number text, message text)');
+  tx.executeSql('CREATE TABLE IF NOT EXISTS data (uid primary key, name text, message text, fbSync text )');
+  tx.executeSql('SELECT * FROM data',[],successData,errorCB);  
+}
+function successData(tx, r){
+  if(r.rows.length == 0 ) {
+    $("#first").show();
+    $("#first").append("Welcome to Birthday Buddy. Please Login to get started :)");
+  }
+  else{
+    db.transaction(queryDB, errorCB);
+  }
 }
 function onDeviceReady(){
   db = window.openDatabase("autobudder", "1.0", "AutoBudder", 1000000);
