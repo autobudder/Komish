@@ -38,7 +38,7 @@ import android.widget.LinearLayout;
 
 import com.facebook.android.Facebook.DialogListener;
 
-import com.phonegap.helloworld.R;
+import com.phonegap.birthdaybuddy.R;
 
 public class FbDialog extends Dialog {
 

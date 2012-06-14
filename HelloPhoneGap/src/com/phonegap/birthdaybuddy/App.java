@@ -1,6 +1,7 @@
-package com.phonegap.helloworld;
+package com.phonegap.birthdaybuddy;
 
 import android.os.Bundle;
+import com.phonegap.birthdaybuddy.R;
 import org.apache.cordova.*;
 
 public class App extends DroidGap {

@@ -101,6 +101,7 @@ function populateDB(tx) {
     	      //console.log("sql:" + sql);
     	
     }
+    
      //tx.executeSql('INSERT INTO DEMO (id, data) VALUES (2, "Second row")');
 }
 
@@ -114,8 +115,8 @@ function queryDB(tx) {
   var date = new Date();
   var string = ('0' + date.getDate()).slice(-2) + '/' + ('0' + (date.getMonth()+1)).slice(-2);
   //string = "06/08";
-  //tx.executeSql('SELECT * FROM birthdays WHERE birthday LIKE "%' + string + '%"', [], querySuccess, errorCB);
-  tx.executeSql('SELECT * FROM birthdays WHERE birthday', [], querySuccess, errorCB);
+  tx.executeSql('SELECT * FROM birthdays WHERE birthday LIKE "%' + string + '%"', [], querySuccess, errorCB);
+  //tx.executeSql('SELECT * FROM birthdays WHERE birthday', [], querySuccess, errorCB);
 }
 
 // Query the success callback
@@ -127,7 +128,7 @@ function querySuccess(tx, r) {
     //console.log("db dump:" + print(results));
      var len = results.rows.length;
      console.log("today:"+ len);
-    for (var k=0; k<20; k++){
+    for (var k=0; k<len; k++){
             search(results.rows.item(k).name,k); 
     
   }
@@ -138,9 +139,17 @@ function querySuccess(tx, r) {
 //
 function successCB() {
     //alert("success!");
-    
+    //$("#first").append("Synced with Facebook, please restart application");
     return true;
 }
+// Transaction success callback
+//
+function successSync() {
+    //alert("success!");
+    //$("#first").append("Synced with Facebook, please restart application");
+   db.transaction(createTable, errorCB, successCB);
+}
+
     
 function getLoginStatus() {
 	FB.getLoginStatus(function(response) {
@@ -187,7 +196,7 @@ function retrieveBirthdays() {
       }
     }
    // console.log("array:" + print(x));
-    db.transaction(populateDB, errorCB, successCB);
+    db.transaction(populateDB, errorCB, successSync);
 }
 	});
 }
@@ -254,7 +263,7 @@ function messageSend(id){
   var y = today[id].number;
   
 	console.log('Sending: ' + x + ' ' + y );
-	window.plugins.sms.send(9008420482, "Happy Birthday " + x + " . Have a great day !!", 
+	window.plugins.sms.send(y, "Happy Birthday " + x + " . Have a great day !!", 
 		function () { 
 		   alert('Message sent successfully');	
 	    },

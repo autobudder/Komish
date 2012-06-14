@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.phonegap.helloworld"
+    package="com.phonegap.birthdaybuddy"
     android:versionCode="1"
     android:versionName="1.0" >
+     <uses-sdk android:minSdkVersion="4" />
         <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 <uses-permission android:name="android.permission.CAMERA" />
@@ -22,13 +23,13 @@
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> 
 <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 <uses-permission android:name="android.permission.BROADCAST_STICKY" />
-    <uses-sdk android:minSdkVersion="3" />
+    
 
     <application
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/icon"
         android:label="@string/app_name" >
         <activity
-            android:name=".App"
+            android:name="com.phonegap.birthdaybuddy.App"
             android:label="@string/app_name" android:configChanges="orientation|keyboardHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

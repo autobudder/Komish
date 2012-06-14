@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.phonegap.helloworld;
+package com.phonegap.birthdaybuddy;
 
 import org.apache.cordova.api.PluginResult.Status;
 import org.json.JSONArray;
@@ -47,7 +47,7 @@ public class SmsPlugin extends Plugin {
 				result = new PluginResult(Status.OK);
 			}
 			catch (JSONException ex) {
-				result = new PluginResult(Status.JSON_EXCEPTION, ex.getMessage() + "hello");
+				result = new PluginResult(Status.JSON_EXCEPTION, ex.getMessage());
 			}			
 		}
 		

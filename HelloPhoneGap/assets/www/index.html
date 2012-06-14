@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Komish</title>
+    <title>Birthday Buddy</title>
 
     <script type="text/javascript" charset="utf-8" src="cordova-1.7.0rc1.js"></script>
     <script type="text/javascript" charset="utf-8" src="jquery.js"></script>
@@ -17,6 +17,7 @@
 		<div id="startPage" data-role="page" data-theme="a">
 			<div data-role="header">
 				<h1>Birthday Buddy</h1>
+				<h2> Today's Birthdays </h2>
 <!--
 			</div>
 			<div data-role="content">
@@ -31,6 +32,7 @@
 		<div id="contacts"></div>
     <div id="first" style="display:none; ">
 		<button onclick="login()">Login</button>
+		 <div id="data">loading ...</div>
 <!--
 		<button onclick="me()">Me</button>
 -->
@@ -39,7 +41,7 @@
 	<button onclick="getSession()">Get session</button>
 		<button onclick="getLoginStatus()">Get login</button>
 <button onclick="logout()">Logout</button>-->
-         <div id="data">loading ...</div>
+        
         
         <div id="fb-root"></div>
         

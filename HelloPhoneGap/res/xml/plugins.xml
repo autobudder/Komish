@@ -69,7 +69,7 @@
         value="org.apache.cordova.BatteryListener" />
     <plugin
         name="SmsPlugin"
-        value="com.phonegap.helloworld.SmsPlugin" />
+        value="com.phonegap.birthdaybuddy.SmsPlugin" />
             <plugin name="org.apache.cordova.facebook.Connect" value="org.apache.cordova.facebook.ConnectPlugin" />
 
 
